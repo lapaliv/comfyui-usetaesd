@@ -81,7 +81,10 @@ def get_taesd_vae_instance(model_name="taesd"):
                 sd["vae_shift"] = torch.tensor(0.0)
             
             loaded_vae = comfy.sd.VAE(sd=sd)
-            loaded_vae.throw_exception_if_invalid()
+            if hasattr(loaded_vae, "throw_exception_if_invalid"):
+                loaded_vae.throw_exception_if_invalid()
+            if not (hasattr(loaded_vae, "decode") and hasattr(loaded_vae, "encode")):
+                raise RuntimeError("Loaded TAESD VAE object is missing encode/decode methods.")
             
             _TAESD_VAE_CACHE[model_name] = loaded_vae
             print(f"Successfully loaded and cached TAESD VAE: {model_name}")
